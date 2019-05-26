@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,6 +40,8 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
     private int priority;
     private Map<String, Object> basicMethodMap = new HashMap<>();
     private Map<String, Object> defaultMethodMap = new HashMap<>();
+    private Map<String, Object> otherMethodMap = new HashMap<>();
+    private List<Map<String, Object>> methods = Arrays.asList(basicMethodMap, defaultMethodMap, otherMethodMap);
 
     public BasicRuleProxy(final Object obj) {
         Objects.requireNonNull(obj, "obj");
@@ -56,8 +59,11 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
         lookupConditionAnnotation();
         lookupActionAnnotation();
         lookupWatchersAnnotation();
-        initAnnotationBasicMethod();
-        initUndefinedMethod();
+        registerMissingAnnotationMethodByMethodName();
+
+        registerObjectCustomMethod();
+
+        replaceObjectUnImplementsMethodByLocalImpl();
     }
 
     private void lookupReferenceAnnotation() {
@@ -130,7 +136,7 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
                 .ifPresent((method) -> basicMethodMap.putIfAbsent(RuleMethodName.GETWATCHERS.name(), method));
     }
 
-    private void initAnnotationBasicMethod() {
+    private void registerMissingAnnotationMethodByMethodName() {
         //   Look up method by basic method name
         Stream.of(obj.getClass().getMethods())
                 .filter((method) -> Stream.of(RuleMethodName.values())
@@ -138,7 +144,7 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
                 .forEach((method) -> basicMethodMap.putIfAbsent(method.getName().toUpperCase(), method));
     }
 
-    private void initUndefinedMethod() {
+    private void replaceObjectUnImplementsMethodByLocalImpl() {
         //  use default rule method replace missing undefined method.
         Stream<Method> stream = Stream.of(this.getClass().getMethods());
         stream.filter((method) -> Stream.of(RuleMethodName.values())
@@ -146,18 +152,31 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
                 .forEach((method) -> defaultMethodMap.putIfAbsent(method.getName().toUpperCase(), method));
     }
 
+    /**
+     * Register the obj's custom method.
+     */
+    private void registerObjectCustomMethod() {
+        Set<String> objectMethoNameSet = Stream.of(Object.class.getMethods())
+                .map(Method::getName)
+                .collect(Collectors.toSet());
+        Stream.of(obj.getClass().getMethods())
+                .filter(method -> !objectMethoNameSet.contains(method.getName()))
+                .filter(method -> !basicMethodMap.containsKey(method.getName().toUpperCase()))
+                .forEach(method -> {
+                    Object prevMethod = otherMethodMap.putIfAbsent(method.getName().toUpperCase(), method);
+                    if (prevMethod != null) {
+                        LOG.warn("exists has duplicate method name:{}.", prevMethod);
+                    }
+                });
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName().toUpperCase();
-        //  invoke custom method
-        Object var0 = basicMethodMap.get(methodName);
-        if (null != var0) {
-            return invokeMethod(this.obj, methodName, var0, args);
-        }
-        //  invoke default method
-        Object var1 = defaultMethodMap.get(methodName);
-        if (null != var1) {
-            return invokeMethod(this, methodName, var1, args);
+        for (Map<String, Object> map : methods) {
+            Object var0 = map.get(methodName);
+            if (null != var0)
+                return invokeMethod(this.obj, methodName, var0, args);
         }
         return null;
     }
