@@ -1,0 +1,4 @@
+rootProject.name = 'okra-rules'
+include 'rules-core'
+include 'rules-spring'
+
