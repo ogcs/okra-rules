@@ -1,7 +1,7 @@
-package org.okra.rules.core.reactive;
+package org.okra.rules.support.reactive;
 
 import org.okra.rules.core.RulesEngine;
-import org.okra.rules.core.serial.FireEvent;
+import org.okra.rules.support.serial.FireEvent;
 
 import java.util.concurrent.Flow;
 

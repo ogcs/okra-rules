@@ -61,7 +61,7 @@ public abstract class Rules {
             ruleProxy.initialize();
             result = (Rule) Proxy.newProxyInstance(
                     Rule.class.getClassLoader(),
-                    new Class[]{Rule.class, Comparable.class},
+                    new Class[]{Rule.class, Comparable.class, rule.getClass()},
                     ruleProxy);
         }
         return result;

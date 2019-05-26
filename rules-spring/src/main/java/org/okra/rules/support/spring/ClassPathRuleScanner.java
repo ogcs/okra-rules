@@ -1,11 +1,9 @@
-package org.okra.rules.spring;
+package org.okra.rules.support.spring;
 
 import org.okra.rules.annotation.Rule;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
@@ -14,8 +12,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class ClassPathRuleScanner extends ClassPathBeanDefinitionScanner {
-
-    private RuleFactoryBean<?> factoryBean = new RuleFactoryBean<>();
 
     public ClassPathRuleScanner(BeanDefinitionRegistry registry) {
         super(registry);
@@ -49,11 +45,7 @@ public class ClassPathRuleScanner extends ClassPathBeanDefinitionScanner {
 
     @Override
     protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
-        Set<BeanDefinitionHolder> holders = super.doScan(basePackages);
-        if (!holders.isEmpty()) {
-//            processBeanDefinitions(holders);
-        }
-        return holders;
+        return super.doScan(basePackages);
     }
 
     @Override
@@ -65,26 +57,4 @@ public class ClassPathRuleScanner extends ClassPathBeanDefinitionScanner {
     protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
         super.registerBeanDefinition(definitionHolder, registry);
     }
-
-    private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
-        GenericBeanDefinition definition;
-        for (BeanDefinitionHolder holder : beanDefinitions) {
-            definition = (GenericBeanDefinition) holder.getBeanDefinition();
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Creating MapperFactoryBean with name '" + holder.getBeanName()
-                        + "' and '" + definition.getBeanClassName() + "' mapperInterface");
-            }
-
-            // the mapper interface is the original class of the bean
-            // but, the actual class of the bean is MapperFactoryBean
-            definition.getConstructorArgumentValues().addGenericArgumentValue(definition.getBeanClassName()); // issue #59
-            definition.setBeanClass(this.factoryBean.getClass());
-//            definition.getPropertyValues().add("addToConfig", this.addToConfig);
-            definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
-
-        }
-    }
-
-
 }

@@ -1,4 +1,4 @@
-package org.okra.rules.core.serial;
+package org.okra.rules.support.serial;
 
 import org.okra.rules.core.RuleContext;
 import org.okra.rules.core.RulesEngine;

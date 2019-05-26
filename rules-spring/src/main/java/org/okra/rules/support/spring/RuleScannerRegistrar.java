@@ -1,4 +1,4 @@
-package org.okra.rules.spring;
+package org.okra.rules.support.spring;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;

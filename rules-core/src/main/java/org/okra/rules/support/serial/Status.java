@@ -1,4 +1,4 @@
-package org.okra.rules.core.serial;
+package org.okra.rules.support.serial;
 
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;

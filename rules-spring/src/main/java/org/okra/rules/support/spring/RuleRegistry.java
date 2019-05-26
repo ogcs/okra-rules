@@ -1,4 +1,4 @@
-package org.okra.rules.spring;
+package org.okra.rules.support.spring;
 
 import org.okra.rules.core.Rules;
 import org.okra.rules.core.RulesEngine;
@@ -56,5 +56,4 @@ public class RuleRegistry implements SmartInitializingSingleton, ApplicationCont
     protected void processRuleBeans(Set<Rule> beans) {
         beans.forEach(engine::addRule);
     }
-
 }
