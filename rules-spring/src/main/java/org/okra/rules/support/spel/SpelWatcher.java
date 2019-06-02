@@ -3,7 +3,10 @@ package org.okra.rules.support.spel;
 import org.okra.rules.core.RuleContext;
 import org.okra.rules.core.api.Rule;
 import org.okra.rules.core.api.Watcher;
-import org.springframework.expression.spel.standard.SpelExpression;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
 
 /**
  * @author TinyZ.
@@ -11,12 +14,22 @@ import org.springframework.expression.spel.standard.SpelExpression;
  */
 public class SpelWatcher implements Watcher {
 
-    private SpelExpression beforeEvaluate;
-    private SpelExpression afterEvaluate;
-    private SpelExpression beforeExecute;
-    private SpelExpression onSuccess;
-    private SpelExpression onFailure;
-    private SpelExpression onException;
+    private ParserContext parserContext;
+
+    private Expression beforeEvaluate;
+    private Expression afterEvaluate;
+    private Expression beforeExecute;
+    private Expression onSuccess;
+    private Expression onFailure;
+    private Expression onException;
+
+    public SpelWatcher() {
+        //  empty
+    }
+
+    public SpelWatcher(ParserContext parserContext) {
+        this.parserContext = parserContext;
+    }
 
     @Override
     public boolean beforeEvaluate(Rule rule, RuleContext context) {
@@ -67,27 +80,63 @@ public class SpelWatcher implements Watcher {
         onException.getValue(((SpelRuleContext) context).getEvaluationContext());
     }
 
-    public void setBeforeEvaluate(String expression) {
-        this.beforeEvaluate = Spel.getSpelParser().parseRaw(expression);
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void setParserContext(ParserContext parserContext) {
+        this.parserContext = parserContext;
     }
 
-    public void setAfterEvaluate(String expression) {
-        this.afterEvaluate = Spel.getSpelParser().parseRaw(expression);
+    public void setBeforeEvaluate(Expression beforeEvaluate) {
+        this.beforeEvaluate = beforeEvaluate;
     }
 
-    public void setBeforeExecute(String expression) {
-        this.beforeExecute = Spel.getSpelParser().parseRaw(expression);
+    public void setAfterEvaluate(Expression afterEvaluate) {
+        this.afterEvaluate = afterEvaluate;
     }
 
-    public void setOnSuccess(String expression) {
-        this.onSuccess = Spel.getSpelParser().parseRaw(expression);
+    public void setBeforeExecute(Expression beforeExecute) {
+        this.beforeExecute = beforeExecute;
     }
 
-    public void setOnFailure(String expression) {
-        this.onFailure = Spel.getSpelParser().parseRaw(expression);
+    public void setOnSuccess(Expression onSuccess) {
+        this.onSuccess = onSuccess;
     }
 
-    public void setOnException(String expression) {
-        this.onException = Spel.getSpelParser().parseRaw(expression);
+    public void setOnFailure(Expression onFailure) {
+        this.onFailure = onFailure;
+    }
+
+    public void setOnException(Expression onException) {
+        this.onException = onException;
+    }
+
+    public void setBeforeEvaluateExpression(String expression) {
+        this.beforeEvaluate = parseExpression(expression);
+    }
+
+    public void setAfterEvaluateExpression(String expression) {
+        this.afterEvaluate = parseExpression(expression);
+    }
+
+    public void setBeforeExecuteExpression(String expression) {
+        this.beforeExecute = parseExpression(expression);
+    }
+
+    public void setOnSuccessExpression(String expression) {
+        this.onSuccess = parseExpression(expression);
+    }
+
+    public void setOnFailureExpression(String expression) {
+        this.onFailure = parseExpression(expression);
+    }
+
+    public void setOnExceptionExpression(String expression) {
+        this.onException = parseExpression(expression);
+    }
+
+    private Expression parseExpression(String expression) {
+        ParserContext context = this.parserContext == null
+                ? Spel.getParserContext()
+                : this.parserContext;
+        return Spel.getSpelParser().parseExpression(expression, context);
     }
 }

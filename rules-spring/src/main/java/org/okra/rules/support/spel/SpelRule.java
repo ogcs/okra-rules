@@ -2,21 +2,30 @@ package org.okra.rules.support.spel;
 
 import org.okra.rules.core.BasicRule;
 import org.okra.rules.core.RuleContext;
+import org.okra.rules.core.api.Action;
+import org.okra.rules.core.api.Condition;
 import org.okra.rules.core.api.Watcher;
-import org.springframework.expression.spel.standard.SpelExpression;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.expression.ParserContext;
 
-import java.util.Objects;
+import java.util.Arrays;
 
 /**
  * @author TinyZ.
  * @version 2019.05.25
  */
 public class SpelRule extends BasicRule {
-    private static final long serialVersionUID = -5384415039230528459L;
 
-    private SpelExpression evaluateExpression;
-    private SpelExpression executeExpression;
+    private static final long serialVersionUID = 652698741134247214L;
+    private ParserContext parserContext;
+    private Condition condition;
+    private Action[] actions;
     private Watcher[] watchers;
+
+    public SpelRule() {
+        //  empty
+    }
 
     public SpelRule(String identify) {
         super(identify);
@@ -30,36 +39,54 @@ public class SpelRule extends BasicRule {
         super(identify, description, priority);
     }
 
+    /**
+     * If "parserContext" is exists. this field must initialized before others.
+     */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void setParserContext(ParserContext parserContext) {
+        this.parserContext = parserContext;
+    }
+
+    public void setCondition(Condition condition) {
+        this.condition = condition;
+    }
+
+    public void setConditionExpression(String expression) {
+        this.condition = new SpelCondition(this.parserContext, expression);
+    }
+
+    public void setActions(Action[] actions) {
+        this.actions = actions;
+    }
+
+    public void setActionExpressions(String[] expressionArray) {
+        if (expressionArray == null || expressionArray.length <= 0)
+            return;
+        this.actions = Arrays.stream(expressionArray)
+                .filter(expression -> !expression.isEmpty())
+                .map(expression -> new SpelAction(this.parserContext, expression))
+                .toArray(Action[]::new);
+    }
+
+    public void setWatchers(Watcher[] watchers) {
+        this.watchers = watchers;
+    }
+
     @Override
     public boolean evaluate(RuleContext context) {
-        Spel.checkIllegalSpelContext(context);
-        Objects.requireNonNull(evaluateExpression, "SpEL with #evaluate() is null.");
-        Boolean result = evaluateExpression.getValue(((SpelRuleContext) context).getEvaluationContext(), Boolean.class);
-        return result == null || result;
+        return condition.evaluate(context);
     }
 
     @Override
     public boolean execute(RuleContext context) throws Exception {
-        Spel.checkIllegalSpelContext(context);
-        Objects.requireNonNull(executeExpression, "SpEL with #execute() is null.");
-        Boolean result = executeExpression.getValue(((SpelRuleContext) context).getEvaluationContext(), Boolean.class);
-        return result == null || result;
+        for (Action action : actions) {
+            action.execute(context);
+        }
+        return true;
     }
 
     @Override
     public Watcher[] getWatchers() {
         return watchers;
-    }
-
-    public void setEvaluateExpression(String expression) {
-        this.evaluateExpression = Spel.getSpelParser().parseRaw(expression);
-    }
-
-    public void setExecuteExpression(String expression) {
-        this.executeExpression = Spel.getSpelParser().parseRaw(expression);
-    }
-
-    public void setWatchers(Watcher[] watchers) {
-        this.watchers = watchers;
     }
 }

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Constructor -->
+    <bean name="testConstructor1" class="org.okra.rules.support.spel.SpelRule">
+        <constructor-arg name="identify" value="identify"/>
+    </bean>
+    <bean name="testConstructor2" class="org.okra.rules.support.spel.SpelRule">
+        <constructor-arg name="identify" value="identify"/>
+        <constructor-arg name="description" value="description"/>
+    </bean>
+    <bean name="testConstructor3" class="org.okra.rules.support.spel.SpelRule">
+        <constructor-arg name="identify" value="identify"/>
+        <constructor-arg name="description" value="description"/>
+        <constructor-arg name="priority" value="0"/>
+    </bean>
+
+    <!-- Bean -->
+    <bean name="testBeanMethod" class="org.okra.rules.support.spel.SpelRule">
+        <constructor-arg name="identify" value="testBeanMethod"/>
+        <constructor-arg name="description" value="testBeanMethod"/>
+        <constructor-arg name="priority" value="0"/>
+        <property name="condition" ref="c1"/>
+        <property name="actions" ref="a1"/>
+        <property name="watchers" ref="watcher_1"/>
+        <property name="conditionExpression" value="@{1+4}"/>
+        <property name="actionExpressions" >
+            <list>
+                <value>sdafgsfg</value>
+                <value>sdafgsfg</value>
+                <value>sdafgsfg</value>
+            </list>
+        </property>
+        <property name="parserContext" ref="parserContext"/>
+    </bean>
+    <bean name="c1" class="org.okra.rules.support.spel.SpelCondition">
+        <property name="expression" value="the apple is green ?  @{apple.isGreen()}"/>
+    </bean>
+    <bean name="a1" class="org.okra.rules.support.spel.SpelAction">
+        <property name="expression" value="do action :  @{apple.isGreen()}"/>
+    </bean>
+    <bean name="watcher_1" class="org.okra.rules.support.spel.SpelWatcher">
+        <property name="onSuccessExpression" value="@{ T(System).out.println('Hello World') }"/>
+    </bean>
+    <bean name="parserContext" class="org.springframework.expression.common.TemplateParserContext"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</beans>

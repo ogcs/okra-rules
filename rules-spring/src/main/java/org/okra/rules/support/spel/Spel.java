@@ -1,23 +1,26 @@
 package org.okra.rules.support.spel;
 
 import org.okra.rules.core.RuleContext;
-import org.springframework.expression.BeanResolver;
-import org.springframework.expression.Expression;
+import org.springframework.expression.ParserContext;
 import org.springframework.expression.common.TemplateParserContext;
 import org.springframework.expression.spel.SpelParserConfiguration;
-import org.springframework.expression.spel.standard.SpelExpression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 /**
+ * SpEL utilities.
+ * <p>
+ * Use "@{" and "}" replace spring framework's default expression context "#{" prefix and "}" suffix.
+ *
  * @author TinyZ.
  * @version 2019.05.25
  */
 public final class Spel {
 
+    private static final String EXPRESSION_PREFIX = "@{";
+    private static final String EXPRESSION_SUFFIX = "}";
     private static SpelParserConfiguration spelParserConfiguration;
     private static SpelExpressionParser spelParser;
-    private static BeanResolver beanResolver;
+    private static ParserContext parserContext;
 
     private Spel() {
         //  no-op
@@ -29,11 +32,19 @@ public final class Spel {
         throw new IllegalArgumentException("ctx not SpEL context. actual type:" + ctx.getClass());
     }
 
+    public static void setSpelParserConfiguration(SpelParserConfiguration spelParserConfiguration) {
+        Spel.spelParserConfiguration = spelParserConfiguration;
+    }
+
     public static SpelParserConfiguration getSpelParserConfiguration() {
         if (spelParserConfiguration == null) {
             spelParserConfiguration = new SpelParserConfiguration();
         }
         return spelParserConfiguration;
+    }
+
+    public static void setSpelParser(SpelExpressionParser spelParser) {
+        Spel.spelParser = spelParser;
     }
 
     public static SpelExpressionParser getSpelParser() {
@@ -43,28 +54,14 @@ public final class Spel {
         return spelParser;
     }
 
-    public static StandardEvaluationContext newEvaluationContext() {
-        StandardEvaluationContext ctx = new StandardEvaluationContext();
-        ctx.setBeanResolver(getBeanResolver());
-        return ctx;
+    public static void setParserContext(ParserContext parserContext) {
+        Spel.parserContext = parserContext;
     }
 
-    public static void setBeanResolver(BeanResolver beanResolver) {
-        Spel.beanResolver = beanResolver;
+    public static ParserContext getParserContext() {
+        if (parserContext == null) {
+            parserContext = new TemplateParserContext(EXPRESSION_PREFIX, EXPRESSION_SUFFIX);
+        }
+        return parserContext;
     }
-
-    public static BeanResolver getBeanResolver() {
-        return beanResolver;
-    }
-
-    public void test() {
-        SpelExpressionParser spel = new SpelExpressionParser();
-        SpelExpression expression = spel.parseRaw("");
-        expression.compileExpression();
-        Expression expression1 = spel.parseExpression("");
-        spel.parseExpression("", new TemplateParserContext("", ""));
-//            expression1.
-
-    }
-
 }

@@ -157,4 +157,8 @@ public class RuleContext {
         Objects.requireNonNull(key);
         return params.remove(key);
     }
+
+    public Map<String, Object> params() {
+        return this.params;
+    }
 }
