@@ -44,7 +44,7 @@ public interface Rule extends Identify, Comparable<Rule>, Serializable {
      * Rule conditions abstraction : this method encapsulates the rule's conditions.
      * <strong>Implementations should handle any runtime exception and return true/false accordingly</strong>
      *
-     * @return true if the rule should be applied given the provided facts, false otherwise. Default impl : return true
+     * @return true if the rule should be applied given the provided params, false otherwise. Default impl : return true
      */
     default boolean evaluate(RuleContext context) {
         return true;
@@ -55,7 +55,7 @@ public interface Rule extends Identify, Comparable<Rule>, Serializable {
      *
      * @throws Exception thrown if an exception occurs during actions performing
      */
-    boolean execute(RuleContext context) throws Exception;
+    void execute(RuleContext context) throws Exception;
 
     /**
      * Rule listener abstraction : this method encapsulates the rule's listeners.

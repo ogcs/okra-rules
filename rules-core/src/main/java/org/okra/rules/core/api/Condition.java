@@ -11,7 +11,7 @@ import org.okra.rules.core.RuleContext;
 public interface Condition {
 
     /**
-     * Evaluate the condition according to the known facts.
+     * Evaluate the condition according to the known params.
      *
      * @param context known when evaluating the rule.
      * @return true if the rule should be triggered, false otherwise

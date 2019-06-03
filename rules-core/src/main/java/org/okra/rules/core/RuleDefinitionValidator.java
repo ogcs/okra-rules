@@ -52,7 +52,7 @@ public final class RuleDefinitionValidator {
         }
         Method conditionMethod = conditionMethods.get(0);
         if (!validateConditionMethod(conditionMethod)) {
-            throw new IllegalArgumentException(String.format("Condition method '%s' defined in rule '%s' must be public, may have parameters annotated with @Param (and/or exactly one parameter of type or extending Facts) and return boolean type.", conditionMethod, rule.getClass().getName()));
+            throw new IllegalArgumentException(String.format("Condition method '%s' defined in rule '%s' must be public, may have parameters annotated with @Param (and/or exactly one parameter of type or extending Param) and return boolean type.", conditionMethod, rule.getClass().getName()));
         }
     }
 
@@ -63,7 +63,7 @@ public final class RuleDefinitionValidator {
         }
         for (Method actionMethod : actionMethods) {
             if (!validateActionMethod(actionMethod)) {
-                throw new IllegalArgumentException(String.format("Action method '%s' defined in rule '%s' must be public, must return void type and may have parameters annotated with @Param (and/or exactly one parameter of type or extending Facts).", actionMethod, rule.getClass().getName()));
+                throw new IllegalArgumentException(String.format("Action method '%s' defined in rule '%s' must be public, must return void type and may have parameters annotated with @Param (and/or exactly one parameter of type or extending Param).", actionMethod, rule.getClass().getName()));
             }
         }
     }
@@ -100,11 +100,7 @@ public final class RuleDefinitionValidator {
 
     private boolean validateActionMethod(final Method method) {
         return Modifier.isPublic(method.getModifiers())
-                && (
-                method.getReturnType().equals(Void.TYPE)
-                        || method.getReturnType().equals(Boolean.class)
-                        || method.getReturnType().equals(boolean.class)
-        )
+                && (Void.TYPE.equals(method.getReturnType()))
                 && validParameters(method);
     }
 

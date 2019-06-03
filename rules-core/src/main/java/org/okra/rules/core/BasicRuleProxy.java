@@ -199,22 +199,16 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
         } else if (obj instanceof List
                 && RuleMethodName.EXECUTE.name().equalsIgnoreCase(methodName)) {
             try {
-                boolean result = true;
                 RuleContext context = (RuleContext) args[0];
                 for (Object subObj : (List) obj) {
                     if (subObj instanceof RuleMethodBean) {
                         Method method = ((RuleMethodBean) subObj).getMethod();
                         Object[] parameters = getActualParameters(method, context);
-                        Object res = (((RuleMethodBean) subObj).getMethod()).invoke(instance, parameters);
-                        if (res instanceof Boolean || (res != null && res.getClass() == boolean.class)) {
-                            result &= (boolean) res;
-                        }
+                        (((RuleMethodBean) subObj).getMethod()).invoke(instance, parameters);
                     }
                 }
-                return result;
             } catch (Exception e) {
                 LOG.error("instance;{}, methodName:{}, obj:{}, args:{}", instance, methodName, obj, Arrays.toString(args), e);
-                return false;
             }
         }
         return null;
@@ -268,7 +262,7 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
     }
 
     @Override
-    public boolean execute(RuleContext context) {
+    public void execute(RuleContext context) {
         throw new UnsupportedOperationException("unimplemented method: execute()");
     }
 

@@ -119,16 +119,14 @@ public class RulesEngine {
         if (evaluateResult) {
             try {
                 fireBeforeExecute(rule, context);
-                boolean result = rule.execute(context);
-                if (result) {
-                    fireOnSuccess(rule, context);
-                } else {
-                    fireOnFailure(rule, context);
-                }
+                rule.execute(context);
+                fireOnSuccess(rule, context);
             } catch (Exception e) {
                 fireOnException(rule, context, e);
                 LOG.error("call fire(). rule:{} throws exception.", rule.id(), e);
             }
+        } else {
+            fireOnFailure(rule, context);
         }
     }
 

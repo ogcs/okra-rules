@@ -17,6 +17,6 @@ public @interface Reference {
     /**
      * @return reflection {@link org.okra.rules.core.api.Rule}'s ref method.
      */
-    RuleMethodName ref() default RuleMethodName.TOSTRING;
+    RuleMethodName ref() default RuleMethodName.EXECUTE;
 
 }

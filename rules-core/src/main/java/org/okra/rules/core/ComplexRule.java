@@ -30,13 +30,11 @@ public class ComplexRule extends BasicRule {
     }
 
     @Override
-    public boolean execute(RuleContext context) throws Exception {
-        boolean result = true;
+    public void execute(RuleContext context) throws Exception {
         if (null != rules) {
             for (Rule rule : rules) {
-                result &= rule.execute(context);
+                rule.execute(context);
             }
         }
-        return result;
     }
 }

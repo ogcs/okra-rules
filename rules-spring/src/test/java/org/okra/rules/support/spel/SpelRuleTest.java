@@ -53,8 +53,7 @@ public class SpelRuleTest implements ApplicationContextAware {
 
         SpelRuleContext ctx = new SpelRuleContext(context);
         ctx.with("apple", new Apple(6));
-        boolean result = rule.execute(ctx);
-        Assert.assertTrue(result);
+        rule.execute(ctx);
     }
 
     public static class Apple {

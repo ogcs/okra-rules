@@ -54,13 +54,12 @@ public class DefaultRule extends BasicRule {
     }
 
     @Override
-    public boolean execute(RuleContext context) throws Exception {
+    public void execute(RuleContext context) throws Exception {
         if (null != this.actions) {
             for (Action action : this.actions) {
                 action.execute(context);
             }
         }
-        return true;
     }
 
     public Watcher[] getWatchers() {

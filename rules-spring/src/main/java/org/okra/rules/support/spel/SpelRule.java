@@ -78,11 +78,10 @@ public class SpelRule extends BasicRule {
     }
 
     @Override
-    public boolean execute(RuleContext context) throws Exception {
+    public void execute(RuleContext context) throws Exception {
         for (Action action : actions) {
             action.execute(context);
         }
-        return true;
     }
 
     @Override
