@@ -24,10 +24,11 @@
         <constructor-arg name="identify" value="testBeanMethod"/>
         <constructor-arg name="description" value="testBeanMethod"/>
         <constructor-arg name="priority" value="0"/>
+        <constructor-arg name="parserContext" ref="parserContext"/>
         <property name="condition" ref="c1"/>
         <property name="actions" ref="a1"/>
         <property name="watchers" ref="watcher_1"/>
-        <property name="conditionExpression" value="@{1+4}"/>
+        <property name="conditionExpression" value="#{1+4}"/>
         <property name="actionExpressions" >
             <list>
                 <value>sdafgsfg</value>
@@ -35,7 +36,6 @@
                 <value>sdafgsfg</value>
             </list>
         </property>
-        <property name="parserContext" ref="parserContext"/>
     </bean>
     <bean name="c1" class="org.okra.rules.support.spel.SpelCondition">
         <property name="expression" value="the apple is green ?  @{apple.isGreen()}"/>

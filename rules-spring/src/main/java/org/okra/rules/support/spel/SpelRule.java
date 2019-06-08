@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.expression.ParserContext;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author TinyZ.
@@ -39,6 +40,11 @@ public class SpelRule extends BasicRule {
         super(identify, description, priority);
     }
 
+    public SpelRule(String identify, String description, int priority, ParserContext parserContext) {
+        super(identify, description, priority);
+        this.parserContext = parserContext;
+    }
+
     /**
      * If "parserContext" is exists. this field must initialized before others.
      */
@@ -52,6 +58,7 @@ public class SpelRule extends BasicRule {
     }
 
     public void setConditionExpression(String expression) {
+        Objects.requireNonNull(this.parserContext, "parserContext");
         this.condition = new SpelCondition(this.parserContext, expression);
     }
 
@@ -62,6 +69,7 @@ public class SpelRule extends BasicRule {
     public void setActionExpressions(String[] expressionArray) {
         if (expressionArray == null || expressionArray.length <= 0)
             return;
+        Objects.requireNonNull(this.parserContext, "parserContext");
         this.actions = Arrays.stream(expressionArray)
                 .filter(expression -> !expression.isEmpty())
                 .map(expression -> new SpelAction(this.parserContext, expression))
