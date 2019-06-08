@@ -8,6 +8,8 @@ import org.okra.rules.core.RuleContext;
  */
 public interface Watcher {
 
+    Watcher[] EMPTY = new Watcher[0];
+
     /**
      * Triggered before the evaluation of a rule.
      *

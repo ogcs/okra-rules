@@ -63,7 +63,7 @@ public class DefaultRule extends BasicRule {
     }
 
     public Watcher[] getWatchers() {
-        return listeners.toArray(new Watcher[0]);
+        return listeners.toArray(Watcher.EMPTY);
     }
 
     @Override

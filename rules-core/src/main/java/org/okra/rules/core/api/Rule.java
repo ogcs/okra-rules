@@ -63,7 +63,7 @@ public interface Rule extends Identify, Comparable<Rule>, Serializable {
      * @return rule listener list if rule has any listener. otherwise null.
      */
     default Watcher[] getWatchers() {
-        return null;
+        return Watcher.EMPTY;
     }
 
 }
