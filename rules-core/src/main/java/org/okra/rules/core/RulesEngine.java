@@ -57,7 +57,7 @@ public class RulesEngine {
         Objects.requireNonNull(rule);
         Rule prev = rulebook.putIfAbsent(identify, rule);
         if (prev != null) {
-            LOG.info("the rule id:{} has exists. previous info: ", prev.id(), prev);
+            LOG.info("the rule id:{} has exists. previous info: {}", prev.id(), prev);
         }
     }
 
@@ -65,7 +65,7 @@ public class RulesEngine {
         Objects.requireNonNull(ruleImpl);
         Rule prev = rulebook.putIfAbsent(identify, Rules.asRule(ruleImpl));
         if (prev != null) {
-            LOG.info("the rule id:{} has exists. previous info: ", prev.id(), prev);
+            LOG.info("the rule id:{} has exists. previous info: {}", prev.id(), prev);
         }
     }
 
@@ -77,7 +77,7 @@ public class RulesEngine {
     public void removeRule(String identify) {
         Rule prev = rulebook.remove(identify);
         if (prev != null) {
-            LOG.info("the rule id:{} has bean removed. rule info: ", prev.id(), prev);
+            LOG.info("the rule id:{} has bean removed. rule info: {}", prev.id(), prev);
         }
     }
 
