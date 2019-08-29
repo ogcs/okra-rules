@@ -37,7 +37,18 @@ public class ClassPathRuleScanner extends ClassPathBeanDefinitionScanner {
             if (metadataReader.getClassMetadata().isConcrete()
                     && metadataReader.getClassMetadata().hasSuperClass()) {
                 return Stream.of(metadataReader.getClassMetadata().getInterfaceNames())
-                        .allMatch(clzName -> org.okra.rules.core.api.Rule.class.getName().equalsIgnoreCase(clzName));
+                        .anyMatch(clzName -> {
+                            if (org.okra.rules.core.api.Rule.class.getName().equalsIgnoreCase(clzName)) {
+                                return true;
+                            }
+                            try {
+                                Class<?> clzOfInterface = Class.forName(clzName);
+                                return org.okra.rules.core.api.Rule.class.isAssignableFrom(clzOfInterface);
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            return false;
+                        });
             }
             return false;
         });

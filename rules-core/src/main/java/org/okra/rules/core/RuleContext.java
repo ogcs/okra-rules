@@ -161,4 +161,12 @@ public class RuleContext {
     public Map<String, Object> params() {
         return this.params;
     }
+
+    @Override
+    public String toString() {
+        return "RuleContext{" +
+                "params=" + params +
+                ", prefix='" + prefix + '\'' +
+                '}';
+    }
 }

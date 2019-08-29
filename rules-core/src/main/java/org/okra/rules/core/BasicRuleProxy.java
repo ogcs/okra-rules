@@ -41,7 +41,6 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
     private Map<String, Object> basicMethodMap = new HashMap<>();
     private Map<String, Object> defaultMethodMap = new HashMap<>();
     private Map<String, Object> otherMethodMap = new HashMap<>();
-    private List<Map<String, Object>> methods = Arrays.asList(basicMethodMap, defaultMethodMap, otherMethodMap);
 
     public BasicRuleProxy(final Object obj) {
         Objects.requireNonNull(obj, "obj");
@@ -173,50 +172,64 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName().toUpperCase();
-        for (Map<String, Object> map : methods) {
-            Object var0 = map.get(methodName);
-            if (null != var0)
-                return invokeMethod(this.obj, methodName, var0, args);
+        Object basicMethod = basicMethodMap.get(methodName);
+        if (basicMethod != null) {
+            return invokeMethod(this.obj, methodName, basicMethod, args);
         }
+
+        Object proxyDefaultMethod = defaultMethodMap.get(methodName);
+        if (proxyDefaultMethod != null) {
+            return invokeMethod(this, methodName, proxyDefaultMethod, args);
+        }
+
+        Object customMethod = otherMethodMap.get(methodName);
+        if (customMethod != null) {
+            return invokeMethod(this.obj, methodName, customMethod, args);
+        }
+
         return null;
     }
 
-    private Object invokeMethod(Object instance, String methodName, Object obj, Object[] args) {
-        if (obj instanceof Method) {
-            Object[] parameters = args;
+    private Object invokeMethod(Object instance, String methodName, Object method, Object[] args) {
+        if (method instanceof Method) {
+            RuleContext context = null;
             if (null != args
                     && args.length == 1
                     && args[0] instanceof RuleContext) {
-                RuleContext context = (RuleContext) args[0];
-                parameters = getActualParameters((Method) obj, context);
+                context = (RuleContext) args[0];
             }
+            Object[] parameters = getActualParameters((Method) method, context);
             try {
-                return ((Method) obj).invoke(instance, parameters);
+                return ((Method) method).invoke(instance, parameters);
             } catch (Exception e) {
-                LOG.error("instance;{}, methodName:{}, obj:{}, args:{}", instance, methodName, obj, Arrays.toString(args), e);
+                LOG.error("instance:{}, methodName:{}, method:{}, args:{}", instance, methodName, method, Arrays.toString(args), e);
                 return null;
             }
-        } else if (obj instanceof List
+        } else if (method instanceof List
                 && RuleMethodName.EXECUTE.name().equalsIgnoreCase(methodName)) {
             try {
                 RuleContext context = (RuleContext) args[0];
-                for (Object subObj : (List) obj) {
+                for (Object subObj : (List) method) {
                     if (subObj instanceof RuleMethodBean) {
-                        Method method = ((RuleMethodBean) subObj).getMethod();
-                        Object[] parameters = getActualParameters(method, context);
-                        (((RuleMethodBean) subObj).getMethod()).invoke(instance, parameters);
+                        Method subMethod = ((RuleMethodBean) subObj).getMethod();
+                        Object[] parameters = getActualParameters(subMethod, context);
+                        subMethod.invoke(instance, parameters);
                     }
                 }
             } catch (Exception e) {
-                LOG.error("instance;{}, methodName:{}, obj:{}, args:{}", instance, methodName, obj, Arrays.toString(args), e);
+                LOG.error("instance;{}, methodName:{}, obj:{}, args:{}", instance, methodName, method, Arrays.toString(args), e);
             }
         }
         return null;
     }
 
     private Object[] getActualParameters(Method method, RuleContext context) {
+        Parameter[] parameters = method.getParameters();
+        if (parameters.length <= 0) {
+            return null;
+        }
         List<Object> list = new ArrayList<>();
-        for (Parameter parameter : method.getParameters()) {
+        for (Parameter parameter : parameters) {
             //  get parameter if parameter is RuleContext
             Class<?> parameterType = parameter.getType();
             if (RuleContext.class.isAssignableFrom(parameterType)
@@ -224,24 +237,28 @@ public class BasicRuleProxy implements InvocationHandler, org.okra.rules.core.ap
                 list.add(parameterType.cast(context));
                 continue;
             }
-            //  get parameter by parameter's Param annotation
-            Param annotation = parameter.getAnnotation(Param.class);
-            if (null != annotation) {
-                list.add(context.get(annotation.value(), parameterType));
-                continue;
+            if (context != null) {
+                //  get parameter by parameter's Param annotation
+                Param annotation = parameter.getAnnotation(Param.class);
+                if (null != annotation) {
+                    list.add(context.get(annotation.value(), parameterType));
+                    continue;
+                }
+                //  get parameter by parameter's name.
+                if (context.containsKey(parameter.getName())) {
+                    list.add(context.get(parameter.getName(), parameterType));
+                    continue;
+                }
             }
-            //  get parameter by parameter's name.
-            if (context.containsKey(parameter.getName())) {
-                list.add(context.get(parameter.getName(), parameterType));
-                continue;
-            }
-            throw new NoSuchParameterException("", parameter.getName());
+            throw new NoSuchParameterException("No such the parameter:" + parameter.getName() + ", context:" +
+                    context, parameter.getName());
         }
         return list.toArray();
     }
 
     /// <editor-fold desc="Default Rule Implements">
 
+    @Override
     public String id() {
         return this.identify;
     }

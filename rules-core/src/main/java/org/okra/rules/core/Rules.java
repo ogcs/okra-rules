@@ -2,10 +2,14 @@ package org.okra.rules.core;
 
 import org.okra.rules.core.api.Action;
 import org.okra.rules.core.api.Condition;
+import org.okra.rules.core.api.Identify;
 import org.okra.rules.core.api.Rule;
 import org.okra.rules.core.api.Watcher;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -59,9 +63,16 @@ public abstract class Rules {
             RuleDefinitionValidator.create().validateRuleDefinition(rule);
             BasicRuleProxy ruleProxy = new BasicRuleProxy(rule);
             ruleProxy.initialize();
+
+            List<Class<?>> proxyClazzAry = new ArrayList<>();
+            proxyClazzAry.add(Rule.class);
+            Class<?>[] interfaces = rule.getClass().getInterfaces();
+            if (interfaces != null && interfaces.length > 0) {
+                proxyClazzAry.addAll(Arrays.asList(interfaces));
+            }
             result = (Rule) Proxy.newProxyInstance(
                     Rule.class.getClassLoader(),
-                    new Class[]{Rule.class, Comparable.class, rule.getClass()},
+                    proxyClazzAry.toArray(new Class[0]),
                     ruleProxy);
         }
         return result;
