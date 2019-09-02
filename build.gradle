@@ -6,6 +6,7 @@ version '1.0-SNAPSHOT'
 subprojects {
     apply plugin: 'java'
     apply plugin: 'distribution'
+    apply plugin: 'jacoco'
 
     sourceCompatibility = 11
     targetCompatibility = 11
@@ -39,6 +40,50 @@ subprojects {
         mavenCentral()
         maven { url "http://repo.maven.apache.org/maven2" }
         maven { url "http://repo.typesafe.com/typesafe/repo" }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "http://repo1.maven.org/maven2/" }
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+        ignoreFailures = true
+    }
+
+    jacoco {
+        toolVersion = "0.8.3"
     }
 }
+
+/// <editor-fold desc="Codecov">
+
+task codeCoverageReport(type: JacocoReport) {
+    executionData fileTree(dir: project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    jacocoClasspath
+
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+
+    reports {
+        xml.enabled true
+        println("TINYZZH: ${buildDir}/reports/jacoco/report.xml")
+        xml.destination file("${buildDir}/reports/jacoco/report.xml")
+        html.enabled true
+        html.destination file("${buildDir}/reports/html")
+        csv.enabled false
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['**/bean/**'])
+        })
+    }
+}
+
+codeCoverageReport.dependsOn {
+    subprojects*.test
+}
+
+/// </editor-fold>
