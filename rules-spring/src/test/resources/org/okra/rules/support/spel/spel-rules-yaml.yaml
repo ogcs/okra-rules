@@ -1,0 +1,20 @@
+info:
+  - desc: ""
+rules:
+  - rule:
+      identify: "identify"
+      description: "simple rule implement"
+      priority: 1
+      when: "@{apple.isGreen()}"
+      then:
+        - "@{T(System).out.println('Is apple green ? @{apple.isGreen()}')}"
+        - "@{T(System).out.println('Is apple green ? @{apple.isGreen()}')}"
+  - rule:
+      identify: "identify"
+      description: "simple rule implement"
+      priority: 2
+      when: "@{!apple.isGreen()}"
+      then:
+        - "@{T(System).out.println('Is apple green ? @{apple.isGreen()}')}"
+        - "@{T(System).out.println('Is apple green ? @{apple.isGreen()}')}"
+

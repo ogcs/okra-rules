@@ -44,7 +44,7 @@
         <property name="expression" value="do action :  @{apple.isGreen()}"/>
     </bean>
     <bean name="watcher_1" class="org.okra.rules.support.spel.SpelWatcher">
-        <property name="onSuccessExpression" value="@{ T(System).out.println('Hello World') }"/>
+        <property name="onSuccessExpression" value="www is @{ T(System).out.println('Hello World') }"/>
     </bean>
     <bean name="parserContext" class="org.springframework.expression.common.TemplateParserContext"/>
 

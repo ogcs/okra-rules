@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 
 /**
+ * Thread-safe.
  * @author TinyZ.
  * @since 2019.03.06
  */

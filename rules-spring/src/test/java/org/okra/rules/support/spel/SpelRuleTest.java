@@ -1,21 +1,22 @@
 package org.okra.rules.support.spel;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author TinyZ.
  * @version 2019.05.26
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "/org/okra/rules/support/spel/spel-rules-test.xml")
 public class SpelRuleTest implements ApplicationContextAware {
 
@@ -26,25 +27,31 @@ public class SpelRuleTest implements ApplicationContextAware {
         this.context = context;
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void testConstructor1() {
-        SpelRule rule = (SpelRule) context.getBean("testConstructor1");
-        SpelRuleContext ctx = new SpelRuleContext();
-        rule.evaluate(ctx);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            SpelRule rule = (SpelRule) context.getBean("testConstructor1");
+            SpelRuleContext ctx = new SpelRuleContext();
+            rule.evaluate(ctx);
+        });
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void testConstructor2() {
-        SpelRule rule = (SpelRule) context.getBean("testConstructor2");
-        SpelRuleContext ctx = new SpelRuleContext();
-        rule.evaluate(ctx);
+        Assertions.assertThrows(null, () -> {
+            SpelRule rule = (SpelRule) context.getBean("testConstructor2");
+            SpelRuleContext ctx = new SpelRuleContext();
+            rule.evaluate(ctx);
+        });
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void testConstructor3() {
-        SpelRule rule = (SpelRule) context.getBean("testConstructor3");
-        SpelRuleContext ctx = new SpelRuleContext();
-        rule.evaluate(ctx);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            SpelRule rule = (SpelRule) context.getBean("testConstructor3");
+            SpelRuleContext ctx = new SpelRuleContext();
+            rule.evaluate(ctx);
+        });
     }
 
     @Test

@@ -1,11 +1,9 @@
 
 dependencies {
-    compile project(':rules-core')
+    implementation project(':rules-core')
 
     //  spring framework
-    compile group: 'org.springframework', name: 'spring-context', version: "5.1.5.RELEASE"
-    compile group: 'org.springframework', name: 'spring-beans', version: "5.1.5.RELEASE"
-    compile group: 'org.springframework', name: 'spring-test', version: "5.1.5.RELEASE"
-
-    testImplementation('org.junit.jupiter:junit-jupiter:5.5.1')
+    implementation("org.springframework:spring-context:${version_options.SPRING_VERSION}")
+    implementation("org.springframework:spring-beans:${version_options.SPRING_VERSION}")
+    implementation("org.springframework:spring-test:${version_options.SPRING_VERSION}")
 }
