@@ -1,3 +1,20 @@
+/*
+ *
+ *
+ *          Copyright (c) 2021. - TinyZ.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 ext.root = project
 
 ext.version_options = [
@@ -54,26 +71,11 @@ subprojects {
     test {
         ignoreFailures = true
         useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
     }
 }
-
-/*
- *
- *
- *          Copyright (c) 2021. - TinyZ.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
 
 //  <editor-fold desc="   Maven Publish  Local ">
 //  https://docs.gradle.org/current/userguide/publishing_maven.html#publishing_maven:install
@@ -163,5 +165,49 @@ Closure init_publish_module = {
 }
 ext.publish_jvm_projects.each {
     project(it, init_publish_module)
+}
+/// </editor-fold>
+
+/// <editor-fold desc="  Code Coverage  ">
+
+ext.codecovProjects = subprojects.findAll {
+    return ["rules-core", "rules-spring"].contains(it.name)
+}
+configure(codecovProjects) {
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = "0.8.6"
+    }
+}
+task codeCoverageReport(type: JacocoReport) {
+    getExecutionData().setFrom(fileTree(dir: project.rootDir.absolutePath).include("**/build/jacoco/*.exec"))
+
+    project.ext.codecovProjects.each {
+        sourceSets it.sourceSets.main
+    }
+
+    reports {
+        xml.enabled true
+        xml.destination file("${buildDir}/reports/report.xml")
+        html.enabled true
+        html.destination file("${buildDir}/reports/html")
+        csv.enabled false
+    }
+
+    afterEvaluate {
+        getClassDirectories().setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: [
+                            '**/bootstrap/**'
+                    ])
+        }))
+    }
+
+    //  jacocoRootReport doesn't work if some subprojects don't have any tests at all because this causes the onlyIf of JacocoReport to be false.
+    onlyIf = { true }
+}
+codeCoverageReport.dependsOn {
+    ext.codecovProjects*.test
 }
 /// </editor-fold>
