@@ -27,7 +27,7 @@ ext.version_options = [
 ext.pack_version = (hasProperty("pack_version") ? property("pack_version") : version)
 
 group 'org.ogcs'
-version '1.0-SNAPSHOT'
+version '1.0.2.Beta-SNAPSHOT'
 description = 'Okra rule engine implement.'
 
 ext.publish_jvm_projects = [
@@ -38,6 +38,7 @@ ext.publish_jvm_projects = [
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'distribution'
 
     sourceCompatibility = 11
@@ -62,10 +63,11 @@ subprojects {
 
     repositories {
         mavenLocal()
-        mavenCentral()
-        maven { url "http://repo.maven.apache.org/maven2" }
-        maven { url "http://repo.typesafe.com/typesafe/repo" }
-        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://repo1.maven.org/maven2/" }
+        maven { url "https://repo.maven.apache.org/maven2/" }
+        maven { url "https://repo.typesafe.com/typesafe/repo" }
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://maven.aliyun.com/repository/spring" }
     }
 
     test {
@@ -93,6 +95,9 @@ Closure init_publish_module = {
         outputs.file "$project.buildDir/generatePomPropertiesFile/pom.properties"
         doLast {
             File file = outputs.files.singleFile
+            if (file.isFile() && file.exists()) {
+                file.delete()
+            }
             file.parentFile.mkdirs()
             file << inputs.properties.collect { key, value -> "$key: $value" }.join('\n')
         }
@@ -145,7 +150,7 @@ Closure init_publish_module = {
                     licenses {
                         license {
                             name = "The Apache License, Version 2.0"
-                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                         }
                     }
                     developers {
@@ -160,6 +165,27 @@ Closure init_publish_module = {
         }
         repositories {
             mavenLocal()
+            maven {
+                name "local_nexus"
+                url project.findProperty("mavenRepoUrl") ?: ""
+                credentials {
+                    username = project.findProperty("mavenRepoUser") ?: ""
+                    password = project.findProperty("mavenRepoPassword") ?: ""
+                }
+                allowInsecureProtocol = true
+            }
+            maven {
+                name "gitea"
+                url = uri("http://192.168.190.182:3000/api/packages/zzh/maven")
+                credentials(HttpHeaderCredentials) {
+                    name = "Authorization"
+                    value = "token " + project.findProperty("giteaMavenAccessToken")
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+                allowInsecureProtocol = true
+            }
         }
     }
 }
@@ -188,11 +214,11 @@ task codeCoverageReport(type: JacocoReport) {
     }
 
     reports {
-        xml.enabled true
-        xml.destination file("${buildDir}/reports/report.xml")
-        html.enabled true
-        html.destination file("${buildDir}/reports/html")
-        csv.enabled false
+//        xml.enabled false
+//        xml.destination file("${buildDir}/reports/report.xml")
+//        html.enabled false
+//        html.destination file("${buildDir}/reports/html")
+//        csv.enabled false
     }
 
     afterEvaluate {

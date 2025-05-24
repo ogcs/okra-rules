@@ -16,62 +16,12 @@
  *  limitations under the License.
  */
 
-plugins {
-    id 'distribution'
-    id 'java'
+description("Okra rules All In One")
+dependencies {
+    api(project(":rules-core"))
+    api(project(":rules-spring"))
 }
-
-def subprojects = [
-        project(':rules-core'),
-        project(':rules-spring')
-]
-for (subproject in rootProject.subprojects) {
-    if (subproject == project) {
-        continue
-    }
-    evaluationDependsOn(subproject.path)
-}
-
-jar {
-    subprojects.each {
-        from fileTree("${it.buildDir}/classes/java/main") {
-            include '**/*.class'
-        }
-        from fileTree("${it.buildDir}/resources/main") {
-            include '**/*'
-        }
-    }
-}
-jar.dependsOn {
-    subprojects*.build
-}
-
-sourcesJar {
-    //  collect sources
-    subprojects.each {
-        from it.sourceSets.main.allSource
-    }
-}
-
-javadocJar {
-
-}
-
-distTar {
-    archiveBaseName = "${rootProject.name}-all"
-    compression = Compression.GZIP
-    extension = 'tar.gz'
-}
-
-distributions {
-    main {
-        contents {
-            //  collect sources
-            subprojects.each {
-                from("${it.projectDir}/src/")
-            }
-
-            from project.tasks.withType(Jar)
-        }
-    }
+//  模块没有source. 仅打包pom.xml
+generatePomFileForMavenPublication {
+    pom.packaging = "pom"
 }
